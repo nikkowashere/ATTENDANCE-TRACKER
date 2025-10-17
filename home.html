@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Home - Attendance Tracker</title>
+  <style>
+/* add same font + animation system used on index/about */
+:root{ --bg1:#2c3e50; --bg2:#3498db; --card:#fff; --muted:#555; --ui-font: "Inter", "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial; }
+html,body{height:100%;margin:0;font-family:var(--ui-font);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+body{ background:linear-gradient(135deg,var(--bg1),#2980b9); color:#fff; transition: opacity .36s ease, transform .36s ease; }
+body.page-enter{ animation: pageIn .44s cubic-bezier(.2,.9,.3,1) both; }
+body.page-exit{ animation: pageOut .32s ease both; }
+@keyframes pageIn{ from{ opacity:0; transform:translateY(10px) scale(.998);} to{ opacity:1; transform:none;} }
+@keyframes pageOut{ from{ opacity:1 } to{ opacity:0; transform:translateY(-10px) scale(.998);} }
+
+a, .cta, .nav-logo, .hero, .logo-box { transition: transform .18s ease, box-shadow .18s ease; }
+a:hover, .cta:hover { transform: translateY(-3px); }
+a:focus, button:focus, input:focus { outline:3px solid rgba(52,152,219,0.12); outline-offset:4px; }
+
+/* small elevation for hero on hover */
+.hero:hover{ transform: translateY(-4px); }
+
+    body{margin:0;font-family:var(--ui-font);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:linear-gradient(135deg,var(--bg1),#2980b9);color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+    .navbar{width:100%;max-width:900px;display:flex;align-items:center;gap:16px;padding:14px 20px;margin-top:22px;background:linear-gradient(90deg,rgba(44,62,80,0.92),rgba(52,152,219,0.85));border-radius:16px;box-shadow:0 6px 30px rgba(0,0,0,0.18);}
+    .nav-logo{font-weight:700;display:flex;align-items:center;gap:10px;font-size:1.15em;color:#fff}
+    .nav-logo .logo-icon{font-size:1.15em;color:var(--bg2)}
+    .navbar-links{margin-left:auto;display:flex;gap:12px;align-items:center}
+    .navbar-links a{color:rgba(255,255,255,0.92);text-decoration:none;padding:6px 10px;border-radius:8px;transition:background .18s}
+    .navbar-links a:hover{background:rgba(255,255,255,0.06)}
+    .hero{width:100%;max-width:900px;margin:28px 16px;padding:40px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));box-shadow:0 12px 40px rgba(0,0,0,0.24);display:flex;gap:28px;align-items:center;flex-wrap:wrap;}
+    .logo-box{width:120px;height:120px;border-radius:16px;background:linear-gradient(135deg,var(--bg2),#217dbb);display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:0 8px 24px rgba(0,0,0,0.2)}
+    .hero-content{flex:1;min-width:220px}
+    .hero-content h1{margin:0;font-size:1.7em;letter-spacing:-0.5px}
+    .hero-content p{color:rgba(255,255,255,0.88);margin:10px 0 18px 0;font-size:1.03em;line-height:1.4}
+    .cta{display:inline-block;background:#fff;color:var(--bg1);padding:10px 16px;border-radius:10px;font-weight:700;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,0.18);transition:transform .12s}
+    .cta:hover{transform:translateY(-4px)}
+    .purpose{max-width:900px;width:100%;margin:18px 16px;padding:20px;border-radius:12px;background:rgba(255,255,255,0.06);color:#eef6ff}
+    footer{width:100%;max-width:900px;margin:24px 16px 40px;color:rgba(255,255,255,0.7);text-align:center;font-size:0.95em}
+    @media(max-width:640px){.hero{padding:22px}.logo-box{width:88px;height:88px;font-size:36px}}
+  </style>
+
+  <script>
+/* same transition helper */
+(function(){
+  function isInternalLink(a){
+    try{
+      if (!a.href) return false;
+      if (a.target && a.target !== '') return false;
+      const url = new URL(a.href, location.href);
+      return url.origin === location.origin;
+    }catch(e){ return false; }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    document.body.classList.add('page-enter');
+    setTimeout(()=> document.body.classList.remove('page-enter'), 520);
+
+    document.querySelectorAll('a[href]').forEach(a=>{
+      if (!isInternalLink(a)) return;
+      a.addEventListener('click', function(e){
+        const href = a.href;
+        if (href === location.href || href.indexOf('#') !== -1) return;
+        e.preventDefault();
+        document.body.classList.add('page-exit');
+        setTimeout(()=> { location.href = href; }, 360);
+      });
+    });
+  });
+})();
+</script>
+</head>
+<body>
+  <header class="navbar" role="banner">
+    <a href="home.html" class="nav-logo" aria-label="Home">
+      <img id="siteLogoImg" class="logo-img" src="" alt="Site logo" style="display:none">
+      <div class="logo-icon">AT</div>
+      <span class="brand-text">Attendance</span>
+    </a>
+    <nav class="nav-links" role="navigation">
+      <a href="home.html" class="nav-item active">Home</a>
+      <a href="index.html" class="nav-item">Login</a>
+      <a href="about.html" class="nav-item">About Us</a>
+    </nav>
+    <button id="changeLogoBtn" class="change-logo" title="Change site logo" aria-label="Change site logo">✎</button>
+  </header>
+
+  <main style="width:100%;display:flex;flex-direction:column;align-items:center;gap:12px;">
+    <section class="hero" aria-labelledby="home-title">
+      <div class="logo-box" aria-hidden="true">AT</div>
+      <div class="hero-content">
+        <h1 id="home-title">Welcome to Attendance Tracker</h1>
+        <p>Attendance Tracker is a simple, secure tool for managing class attendance, generating daily records, and sharing results with stakeholders. Built for teachers, secretaries, and parents to streamline attendance workflows.</p>
+        <a class="cta" href="index.html">Get started now!!</a>
+      </div>
+    </section>
+
+    <section class="purpose">
+      <h3 style="margin:0 0 8px 0;color:#eaf6ff">Purpose</h3>
+      <p style="margin:0;color:rgba(235,246,255,0.9)">To provide an intuitive, reliable interface for recording and reviewing student attendance — enabling faster record keeping, fewer errors, and easy sharing of attendance history.</p>
+    </section>
+  </main>
+
+  <footer>&copy; 2025 Attendance Tracker — Made for streamlined attendance management.</footer>
+
+  <!-- hidden input (if not present already) -->
+  <input id="siteLogoInput" type="file" accept="image/*" style="display:none">
+
+  <script>
+  // Logo picker logic (same as other pages)
+  (function(){
+    const input = document.getElementById('siteLogoInput');
+    const changeBtn = document.getElementById('changeLogoBtn');
+    function applyLogo(dataUrl){
+      document.querySelectorAll('.logo-img').forEach(img=>{
+        img.src = dataUrl;
+        img.style.display = 'inline-block';
+        img.style.width = '36px';
+        img.style.height = '36px';
+        img.style.borderRadius = '8px';
+        img.style.objectFit = 'cover';
+        img.style.marginRight = '8px';
+        img.style.verticalAlign = 'middle';
+      });
+      document.querySelectorAll('.logo-icon').forEach(el=> el.style.display = 'none');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('siteLogo');
+      if (saved) applyLogo(saved);
+    });
+
+    if (changeBtn && input) {
+      changeBtn.addEventListener('click', ()=> input.click());
+      input.addEventListener('change', (e)=>{
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = function(evt){
+          const dataUrl = evt.target.result;
+          try { localStorage.setItem('siteLogo', dataUrl); } catch(e){ console.warn('Could not save logo to localStorage', e); }
+          applyLogo(dataUrl);
+        };
+        reader.readAsDataURL(f);
+      });
+    }
+  })();
+  </script>
+
+  <!-- append the same navbar-normalize CSS (or keep in head near existing CSS) -->
+  <style>
+/* navbar: normalized across home/about/index (visual-only) */
+.navbar{
+  max-width:1100px; margin:18px auto; padding:10px 18px; display:block; position:relative;
+  background: linear-gradient(90deg, rgba(44,62,80,0.92), rgba(52,152,219,0.85));
+  border-radius:14px; box-shadow:0 10px 30px rgba(8,16,30,0.35); border:1px solid rgba(255,255,255,0.02);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;color:#fff;font-size:1.15rem; float:left}
+.logo-icon{background:linear-gradient(135deg,var(--bg2), #217dbb);width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+.nav-links{ position:absolute; right:18px; top:10px; display:flex; gap:14px; align-items:center; }
+.nav-links a{ color:rgba(255,255,255,0.92); text-decoration:none; padding:8px 12px; border-radius:8px; transition:all .18s; font-weight:600; }
+.nav-links a.active, .nav-links a:hover{ background:rgba(255,255,255,0.04); color:#fff; transform:translateY(-2px); }
+@media (max-width:480px){ .nav-links{ gap:8px } .brand-text{ display:none } }
+  </style>
+</body>
+</html>

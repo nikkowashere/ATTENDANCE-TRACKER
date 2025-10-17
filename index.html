@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance Tracker</title>
+  <style>
+    /* === ORIGINAL STYLES (kept exactly) === */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      padding: 0;
+      margin: 0;
+    }
+    .navbar {
+      background: linear-gradient(90deg, rgba(44,62,80,0.92) 0%, rgba(52,152,219,0.85) 100%);
+      backdrop-filter: blur(12px);
+      border-bottom: 1.5px solid #e3e8ee;
+      box-shadow: 0 4px 24px rgba(44,62,80,0.10);
+      margin: 0 auto 38px auto;
+      max-width: 900px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 32px;
+      border-radius: 18px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .navbar .nav-logo {
+      font-size: 1.45em;
+      font-weight: 700;
+      color: #fff;
+      margin-right: 32px;
+      letter-spacing: -1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+      text-shadow: 0 2px 12px rgba(44,62,80,0.18);
+    }
+    .navbar .nav-logo .logo-icon {
+      font-size: 1.3em;
+      color: #3498db;
+      margin-right: 4px;
+      filter: drop-shadow(0 2px 8px #217dbb33);
+    }
+    .navbar-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 18px;
+      font-size: 1.12em;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      position: relative;
+      padding-bottom: 2px;
+      transition: color 0.18s;
+      border-bottom: 2px solid transparent;
+    }
+    .navbar a:hover, .navbar a.active {
+      color: #e0e6ed;
+    }
+    .navbar a::after {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 0; bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg,#3498db 0%,#217dbb 100%);
+      border-radius: 2px;
+      transform: scaleX(0);
+      transition: transform 0.28s cubic-bezier(.23,1.01,.32,1);
+    }
+    .navbar a:hover::after, .navbar a.active::after {
+      transform: scaleX(1);
+    }
+    @media (max-width: 700px) {
+      .navbar {
+        max-width: 98vw;
+        padding: 0 2vw;
+        border-radius: 0 0 18px 18px;
+        height: 54px;
+      }
+      .navbar .nav-logo {
+        font-size: 1.1em;
+        margin-right: 12px;
+      }
+      .navbar a {
+        margin: 0 8px;
+        font-size: 1em;
+      }
+    }
+    .main-container {
+      background: white;
+      padding: 40px 20px 30px 20px;
+      border-radius: 16px;
+      max-width: 900px;
+      margin: auto;
+      box-shadow: 0 0 16px rgba(0,0,0,0.07);
+      text-align: center;
+    }
+    .main-title {
+      font-size: 2.3em;
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: -1px;
+    }
+    .main-subtitle {
+      color: #555;
+      font-size: 1.1em;
+      margin-bottom: 30px;
+    }
+    .attendance-section {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 30px 16px 20px 16px;
+      max-width: 600px;
+      margin: 40px auto 0 auto;
+    }
+    .login, .dashboard {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      max-width: none;
+      margin: 0;
+      box-shadow: none;
+    }
+    .student-list {
+      margin-top: 20px;
+    }
+    .student-list label {
+      display: block;
+      margin: 5px 0;
+    }
+    .date-header {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: none;
+      background: #2c3e50;
+      color: #fff;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #34495e;
+    }
+    .hidden {
+      display: none;
+    }
+    .header-hero {
+      position: relative;
+      width: 100%;
+      min-height: 240px;
+      background: url('header-bg.jpg') center/cover no-repeat, #2c3e50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0 0 24px 24px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    .header-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(44,62,80,0.60);
+      z-index: 1;
+    }
+    .header-content {
+      position: relative;
+      z-index: 2;
+      color: #fff;
+      text-align: center;
+      padding: 40px 10px 40px 10px;
+      width: 100%;
+      max-width: 900px;
+    }
+    .header-content .main-title {
+      font-size: 2.5em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -1px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+    .header-content .main-subtitle {
+      color: #e0e6ed;
+      font-size: 1.2em;
+      margin-bottom: 0;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .attendance-form-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 18px;
+    }
+    .attendance-form-table th, .attendance-form-table td {
+      border: 1px solid #e3e8ee;
+      padding: 8px 6px;
+      text-align: center;
+    }
+    .attendance-form-table th {
+      background: #f7fafd;
+    }
+    .excused-label {
+      color: #3498db;
+      font-weight: 500;
+    }
+    .present-label {
+      color: #27ae60;
+      font-weight: 500;
+    }
+    .absent-label {
+      color: #e74c3c;
+      font-weight: 500;
+    }
+    .disabled-row {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    .record-date-header {
+      font-weight: bold;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+    .date-capsule {
+      background: #f7fafd;
+      border: 1.5px solid #3498db;
+      color: #3498db;
+      border-radius: 18px;
+      padding: 7px 18px;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, border 0.18s;
+      outline: none;
+    }
+    .date-capsule:hover, .date-capsule:focus {
+      background: #3498db;
+      color: #fff;
+      border-color: #217dbb;
+    }
+    .login-card {
+      background: #f7fafd;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(44,62,80,0.09);
+      max-width: 340px;
+      margin: 0 auto 0 auto;
+      padding: 32px 28px 24px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1.5px solid #e3e8ee;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .login-card.animated {
+      opacity: 1;
+      transform: translateY(0);
+      animation: fadeInUp 0.7s cubic-bezier(.23,1.01,.32,1) both;
+    }
+    .login-card h2 {
+      font-size: 1.5em;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .login-card .login-icon {
+      font-size: 1.3em;
+      color: #3498db;
+    }
+    .login-card label {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 12px;
+      font-size: 1em;
+      color: #34495e;
+      font-weight: 500;
+    }
+    .login-card select,
+    .login-card input[type="text"],
+    .login-card input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      margin-top: 4px;
+      border-radius: 6px;
+      border: 1.5px solid #e3e8ee;
+      font-size: 1em;
+      background: #fff;
+      transition: border 0.18s;
+      box-sizing: border-box;
+      margin-bottom: 2px;
+    }
+    .login-card select:focus,
+    .login-card input:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+    .login-card button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 10px 0;
+      border-radius: 6px;
+      border: none;
+      background: linear-gradient(90deg,#3498db 0%,#217dbb 100%);
+      color: #fff;
+      font-size: 1.08em;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+      transition: background 0.2s;
+    }
+    .login-card button:hover {
+      background: linear-gradient(90deg,#217dbb 0%,#3498db 100%);
+    }
+    .dashboard-card {
+      background: #f7fafd;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(44,62,80,0.09);
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 36px 32px 28px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      border: 1.5px solid #e3e8ee;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .dashboard-card.animated {
+      opacity: 1;
+      transform: translateY(0);
+      animation: fadeInUp 0.7s cubic-bezier(.23,1.01,.32,1) both;
+    }
+    .dashboard-card h2 {
+      font-size: 1.45em;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: #2c3e50;
+      text-align: left;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dashboard-section {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px rgba(44,62,80,0.04);
+      padding: 22px 18px 18px 18px;
+      margin-bottom: 22px;
+      border: 1.5px solid #e3e8ee;
+      text-align: left;
+      opacity: 0;
+      transform: scale(0.97);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .dashboard-section.animated {
+      opacity: 1;
+      transform: scale(1);
+      animation: scaleIn 0.5s cubic-bezier(.23,1.01,.32,1) both;
+    }
+    .dashboard-section label {
+      font-weight: 500;
+      color: #34495e;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .dashboard-section input[type="date"],
+    .dashboard-section input[type="month"] {
+      padding: 7px 12px;
+      border-radius: 6px;
+      border: 1.5px solid #e3e8ee;
+      font-size: 1em;
+      margin-left: 8px;
+      margin-bottom: 8px;
+      background: #f7fafd;
+      transition: border 0.18s;
+    }
+    .dashboard-section input:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+    .dashboard-section button {
+      margin-top: 0;
+      margin-left: 0;
+      margin-bottom: 10px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: none;
+      background: linear-gradient(90deg,#3498db 0%,#217dbb 100%);
+      color: #fff;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+      transition: background 0.2s;
+      display: inline-block;
+    }
+    .dashboard-section button:hover {
+      background: linear-gradient(90deg,#217dbb 0%,#3498db 100%);
+    }
+    .dashboard-card .logout-btn {
+      width: 100%;
+      margin-top: 18px;
+      padding: 10px 0;
+      border-radius: 6px;
+      border: none;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 1.08em;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+      transition: background 0.2s;
+    }
+    .dashboard-card .logout-btn:hover {
+      background: #c0392b;
+    }
+    .dashboard-card #notification {
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      background: #fbeee6;
+      color: #e67e22;
+      border-radius: 8px;
+      font-size: 1em;
+      border: 1.5px solid #f9d7b5;
+      display: none;
+    }
+    /* Add modal and class record styles */
+    .modal-bg {
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      background: rgba(44,62,80,0.18);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 32px rgba(44,62,80,0.18);
+      padding: 32px 28px 24px 28px;
+      min-width: 320px;
+      max-width: 98vw;
+      width: 340px;
+      position: relative;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      border: 1.5px solid #e3e8ee;
+      animation: fadeInUp 0.5s;
+    }
+    .modal h3 {
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 1.2em;
+      font-weight: 700;
+      color: #2c3e50;
+      text-align: left;
+    }
+    .modal label {
+      font-weight: 500;
+      color: #34495e;
+      margin-bottom: 8px;
+      display: block;
+      text-align: left;
+    }
+    .modal input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      border: 1.5px solid #e3e8ee;
+      font-size: 1em;
+      background: #f7fafd;
+      transition: border 0.18s;
+    }
+    .modal input:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+    .student-list-edit {
+      margin-bottom: 12px;
+      padding: 0;
+      list-style: none;
+    }
+    .student-list-edit li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+    .student-list-edit input[type="text"] {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .student-list-edit button {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.95em;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+    .student-list-edit button:hover {
+      background: #c0392b;
+    }
+    .modal .add-btn {
+      background: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 12px;
+      margin-top: 2px;
+    }
+    .modal .add-btn:hover {
+      background: #217dbb;
+    }
+    .modal .save-btn {
+      background: linear-gradient(90deg,#3498db 0%,#217dbb 100%);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 0;
+      font-size: 1.08em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+      transition: background 0.2s;
+    }
+    .modal .save-btn:hover {
+      background: linear-gradient(90deg,#217dbb 0%,#3498db 100%);
+    }
+    .modal .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 1.3em;
+      color: #888;
+      cursor: pointer;
+    }
+    .modal .close-btn:hover {
+      color: #e74c3c;
+    }
+    .record-key-display {
+      background: #f7fafd;
+      border: 1.5px solid #3498db;
+      color: #3498db;
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-size: 1em;
+      font-weight: 500;
+      margin: 12px 0 0 0;
+      text-align: center;
+      word-break: break-all;
+    }
+    .modal-bg.hidden { display: none; }
+    @media (max-width: 700px) {
+      .main-container, .navbar {
+        max-width: 98vw;
+        padding: 10px 2vw;
+      }
+      .attendance-section {
+        max-width: 98vw;
+      }
+      .header-content .main-title {
+        font-size: 1.5em;
+      }
+      .header-content .main-subtitle {
+        font-size: 1em;
+      }
+    }
+    /* Responsive for login card */
+    @media (max-width: 500px) {
+      .login-card {
+        max-width: 98vw;
+        padding: 18px 8vw 18px 8vw;
+      }
+    }
+    /* Responsive for dashboard card */
+    @media (max-width: 800px) {
+      .dashboard-card {
+        max-width: 98vw;
+        padding: 18px 2vw 18px 2vw;
+      }
+    }
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    @keyframes fadeIn {
+      from { opacity: 0;}
+      to { opacity: 1;}
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95);}
+      to { opacity: 1; transform: scale(1);}
+    }
+    .fade-in-up {
+      animation: fadeInUp 0.7s cubic-bezier(.23,1.01,.32,1) both;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s cubic-bezier(.23,1.01,.32,1) both;
+    }
+    .scale-in {
+      animation: scaleIn 0.5s cubic-bezier(.23,1.01,.32,1) both;
+    }
+    .attendance-form-table {
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .attendance-form-table.animated {
+      opacity: 1;
+      animation: fadeIn 0.5s cubic-bezier(.23,1.01,.32,1) both;
+    }
+    /* Add these CSS rules into the existing <style> area (non-destructive) */
+    .field{
+      position:relative;
+      margin-top:8px;
+      width:100%;
+    }
+    .field input, .field select{
+      width:100%;
+      padding:14px 44px 14px 12px;
+      border-radius:10px;
+      border:1px solid #e6eef6;
+      background:#fff;
+      color:#223;
+      font-size:1rem;
+      box-sizing:border-box;
+      transition: box-shadow .14s ease, border-color .14s ease, transform .12s;
+    }
+    .field select{ padding-right:12px; appearance:none; -webkit-appearance:none; background-image:linear-gradient(45deg,transparent 50%, #889 50%), linear-gradient(135deg,#889 50%, transparent 50%); background-position:calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px); background-size:6px 6px,6px 6px; background-repeat:no-repeat; }
+    .field label{
+      position:absolute;
+      left:12px;
+      top:14px;
+      font-size:0.95rem;
+      color:#7b8ca6;
+      pointer-events:none;
+      padding:0 6px;
+      transform-origin:left top;
+      transition: transform .14s ease, top .14s ease, color .14s ease, font-size .14s ease;
+      background:transparent;
+    }
+    .field input:focus, .field select:focus { box-shadow: 0 8px 20px rgba(41,134,211,0.06); border-color: rgba(41,134,211,0.14); outline:none; }
+    .field input:focus + label,
+    .field input.not-empty + label,
+    .field select:focus + label,
+    .field select:not([value=""]) + label {
+      transform: translateY(-10px) scale(.88);
+      top:6px;
+      color:var(--accent, #3498db);
+      font-size:0.82rem;
+    }
+    /* removed .show-pass rules here */
+    /* ...existing CSS below ... */
+
+    /* VISUAL OVERRIDE: make index match Home / About look (only visual, no JS changes) */
+    :root{
+      --bg1: #2c3e50;
+      --bg2: #2980b9;
+      --accent: #3498db;
+      --ui-font: "Inter", "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+      --card-border: rgba(16,24,40,0.06);
+    }
+
+    /* page base */
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:var(--ui-font);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      background: linear-gradient(135deg,var(--bg1),var(--bg2));
+      color: #eef6ff;
+      transition: opacity .36s ease, transform .36s ease;
+    }
+
+    /* central layout container */
+    .navbar {
+      max-width: 1100px;
+      margin: 18px auto;
+      padding: 10px 18px;
+      display:flex;
+      align-items:center;
+      gap:18px;
+      background: linear-gradient(90deg, rgba(44,62,80,0.92), rgba(52,152,219,0.85));
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(8,16,30,0.35);
+      border: 1px solid rgba(255,255,255,0.02);
+      position: sticky;
+      top: 14px;
+      z-index: 30;
+    }
+    .nav-logo { display:flex;align-items:center;gap:10px;font-weight:700;color:#fff;font-size:1.15rem }
+    .nav-logo .logo-icon { background:linear-gradient(135deg,var(--accent), #217dbb);width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;box-shadow:0 6px 20px rgba(16,24,40,0.35) }
+    .navbar-links { margin-left:auto; display:flex; gap:14px; align-items:center; }
+    .navbar a { color: rgba(255,255,255,0.92); text-decoration:none; padding:8px 12px; border-radius:8px; transition:all .18s; font-weight:600; }
+    .navbar a.active, .navbar a:hover { background:rgba(255,255,255,0.04); color:#fff; transform: translateY(-2px); }
+
+    /* Hero */
+    .header-hero{
+      max-width:1100px;
+      margin:18px auto 10px;
+      border-radius:14px;
+      overflow:hidden;
+      position:relative;
+      min-height:320px;
+      background: url('header-bg.jpg') center/cover no-repeat, linear-gradient(135deg,var(--bg1),var(--bg2));
+      box-shadow:0 12px 40px rgba(8,16,30,0.36);
+      border:1px solid rgba(255,255,255,0.02);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+    .header-hero::after{ content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(18,29,46,0.36), rgba(18,29,46,0.46)); }
+    .header-content{ position:relative; z-index:2; width:100%; max-width:900px; color:#fff; text-align:center; padding:40px 12px; }
+    .header-content .main-title{ font-size:2.2rem; font-weight:800; margin-bottom:8px; letter-spacing:-1px; }
+    .header-content .main-subtitle{ color: rgba(224,230,237,0.95); font-size:1.05rem; margin-bottom:18px; }
+
+    /* Main container under hero */
+    .main-container { max-width:1100px; margin:18px auto 48px; padding:0 22px; box-sizing:border-box; }
+
+    /* Place login card visually like Home/About (white card centered) */
+    .attendance-section { background: transparent; max-width:760px; margin:0; padding:0; }
+    .login { display:flex; align-items:center; justify-content:center; padding-top:8px; }
+    .login-card {
+      background:#ffffff;
+      color:var(--bg1);
+      border-radius:14px;
+      box-shadow:0 18px 50px rgba(8,16,30,0.24);
+      max-width:420px;
+      width:100%;
+      margin:0;
+      padding:28px;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      border:1px solid var(--card-border);
+      opacity:0;
+      transform:translateY(12px);
+      transition: opacity .36s, transform .36s;
+    }
+    .login-card.animated{ opacity:1; transform:translateY(0); animation: fadeInUp .6s cubic-bezier(.2,.9,.3,1) both; }
+    .login-card h2{ color:var(--bg1); font-size:1.3rem; margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+
+    /* Inputs / floating labels */
+    .field{ position:relative; margin-top:8px; width:100%; }
+    .field input, .field select{ width:100%; padding:12px 44px 12px 12px; border-radius:8px; border:1px solid #e6eef6; background:#fff; color:#223; font-size:0.98rem; box-sizing:border-box; }
+    .field label{ position:absolute; left:12px; top:12px; font-size:0.92rem; color:#7b8ca6; pointer-events:none; padding:0 6px; transition: transform .14s, top .14s, color .14s; }
+    .field input.not-empty + label, .field input:focus + label, .field select:focus + label { transform: translateY(-10px) scale(.88); top:6px; color:var(--accent); font-size:0.78rem; }
+
+    .actions{ display:flex; justify-content:center; margin-top:14px; }
+    .login-card .meta{ color:#6b7280; font-size:.86rem; text-align:center; margin-top:10px; }
+
+    /* Buttons: stronger accent to match home */
+    .login-card button, .login-card .actions button {
+      width:100%;
+      padding:10px 0;
+      border-radius:8px;
+      border:none;
+      background: linear-gradient(90deg,var(--accent), #217dbb);
+      color:#fff;
+      font-size:1.02rem;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:0 8px 26px rgba(33,125,187,0.18);
+      transition: transform .12s, box-shadow .12s, opacity .12s;
+    }
+    .login-card button:hover{ transform: translateY(-2px); box-shadow:0 12px 36px rgba(33,125,187,0.20); }
+
+    /* Dashboard card contrast */
+    .dashboard-card{ background:#fff; color:var(--bg1); border-radius:12px; box-shadow:0 12px 36px rgba(8,16,30,0.12); border:1px solid var(--card-border); max-width:900px; margin:22px auto 0; padding:28px; }
+
+    /* responsive tweaks */
+    @media (max-width:900px){ .header-content .main-title{ font-size:1.6rem; } .login-card{ max-width:92%; padding:20px; } }
+    @media (max-width:480px){ .navbar{ margin:10px 12px; border-radius:12px; padding:8px 12px; } .header-hero{ min-height:180px; padding:18px; } }
+
+    @keyframes fadeInUp { from{ opacity:0; transform:translateY(18px);} to{ opacity:1; transform:none; } }
+  </style>
+
+  <!-- === ADDITIONAL NON‑DESTRUCTIVE ENHANCEMENTS ===
+       - font smoothing + ui font (fallback to original)
+       - page enter/exit animations (non-blocking)
+       - logo image autodiscovery with sample SVG (inserted via JS, DOES NOT modify your original markup)
+       - subtle input focus/callouts for login inputs
+       - ripple on existing login button (non-destructive)
+  -->
+  <style>
+    :root{ --ui-font: "Inter","Segoe UI",Roboto,system-ui,-apple-system,"Helvetica Neue",Arial; --accent:#3498db; }
+    html,body{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    /* page enter/exit */
+    body{ transition: opacity .36s ease, transform .36s ease; }
+    body.page-enter{ animation: pageIn .44s cubic-bezier(.2,.9,.3,1) both; }
+    body.page-exit{ animation: pageOut .32s ease both; }
+    @keyframes pageIn{ from{ opacity:0; transform:translateY(8px) scale(.998);} to{ opacity:1; transform:none; } }
+    @keyframes pageOut{ from{ opacity:1 } to{ opacity:0; transform:translateY(-8px) scale(.998); } }
+
+    /* logo image style (will be injected, does not require changing your HTML) */
+    .logo-img{ width:36px; height:36px; border-radius:8px; object-fit:cover; display:none; vertical-align:middle; margin-right:8px; box-shadow:0 4px 14px rgba(0,0,0,0.12); }
+
+    /* inputs interactions (non-invasive) */
+    .login-card input, .login-card select {
+      transition: box-shadow .16s ease, transform .12s ease, border-color .12s;
+    }
+    .login-card input:focus, .login-card select:focus {
+      box-shadow: 0 10px 30px rgba(52,152,219,0.08);
+      border-color: rgba(52,152,219,0.14);
+    }
+
+    /* ripple helper */
+    .ripple{ position:absolute; border-radius:50%; background: rgba(255,255,255,0.28); transform: scale(0); opacity:0.9; pointer-events:none; z-index:1; transition: transform .5s ease, opacity .5s ease; }
+
+    /* preserve original look; small hover micro-lift */
+    .login-card:hover{ transform: translateY(-4px); box-shadow:0 12px 36px rgba(16,24,40,0.06); }
+
+    /* focus outlines accessible */
+    a:focus, button:focus, input:focus, select:focus { outline: 3px solid rgba(52,152,219,0.12); outline-offset:4px; border-radius:6px; }
+  </style>
+</head>
+<body>
+<header class="navbar" role="banner">
+  <a href="home.html" class="nav-logo" aria-label="Home">
+    <img id="siteLogoImg" class="logo-img" alt="Site logo" />
+    <div class="logo-icon">AT</div>
+    <span class="brand-text">Attendance</span>
+  </a>
+  <nav class="navbar-links" role="navigation" aria-label="Primary">
+    <a href="home.html" class="nav-item">Home</a>
+    <a href="index.html" class="nav-item active">Login</a>
+    <a href="about.html" class="nav-item">About Us</a>
+  </nav>
+</header>
+    <div class="header-hero">
+      <div class="header-content">
+        <div class="main-title">Attendance Tracker</div>
+        <div class="main-subtitle">
+          Welcome! Please log in to mark or view attendance records.
+        </div>
+      </div>
+    </div>
+    <div class="main-container">
+      <div class="attendance-section">
+        <!-- Replace the login-card inner HTML (keeps ids & onclick=login() intact) -->
+        <div id="login" class="login">
+          <div class="login-card" aria-labelledby="loginHeading" role="region">
+            <h2 id="loginHeading"><span class="login-icon">🔐</span> Login</h2>
+
+            <div class="field">
+              <select id="role" aria-label="role">
+                <option value="secretary">Secretary</option>
+                <option value="teacher">Teacher</option>
+                <option value="parent">Parent</option>
+              </select>
+              <label for="role">Role</label>
+            </div>
+
+            <div class="field">
+              <input id="username" type="text" autocomplete="username" />
+              <label for="username">Username</label>
+            </div>
+
+            <div class="field" style="position:relative;">
+              <input id="password" type="password" autocomplete="current-password" />
+              <label for="password">Password</label>
+            </div>
+
+            <div class="actions">
+              <button onclick="login()" id="loginBtn" aria-label="Login">Login</button>
+            </div>
+
+            <div class="meta" aria-hidden="true">
+              Demo: Teacher/Teacher123 • Secretary/Secretary123 • Parent/Parent123
+            </div>
+          </div>
+        </div>
+        <div id="dashboard" class="dashboard hidden">
+          <div class="dashboard-card">
+            <h2><span class="login-icon">&#128221;</span> Attendance Dashboard (<span id="userRole"></span>)</h2>
+            <div id="notification" class="hidden"></div>
+            <!-- Teacher: Class Record Button & List -->
+            <div id="classRecordPanel" class="hidden" style="margin-bottom:18px;">
+              <button id="createClassBtn" onclick="showClassRecordModal()">Create Class Record</button>
+              <div id="classRecordList" style="margin:14px 0 0 0;"></div>
+              <div id="classRecordInfo"></div>
+            </div>
+            <!-- Secretary: Record Key Input -->
+            <div id="secretaryKeyPanel" class="hidden" style="margin-bottom:18px;">
+              <label for="secretaryRecordKey">Enter Record Key:
+                <input type="text" id="secretaryRecordKey" style="width:180px;">
+              </label>
+              <button onclick="loadSecretaryClass()">Load Class</button>
+              <div id="secretaryKeyError" style="color:#e74c3c;font-size:0.98em;margin-top:6px;"></div>
+            </div>
+            <!-- Parent: Class Name Input -->
+            <div id="parentClassPanel" class="hidden" style="margin-bottom:18px;">
+              <label for="parentClassNameInput">Enter Class Name:
+                <input type="text" id="parentClassNameInput" style="width:180px;">
+              </label>
+              <button onclick="loadParentClass()">Load Class</button>
+              <div id="parentClassError" style="color:#e74c3c;font-size:0.98em;margin-top:6px;"></div>
+            </div>
+            <div id="recordPanel" class="dashboard-section hidden">
+              <label>Select Date:
+                <input type="date" id="attendanceDate" max="">
+              </label>
+              <button id="loadAttendanceBtn" onclick="loadAttendanceForm()">Load</button>
+              <div id="attendanceForm"></div>
+              <button id="saveAttendanceBtn" class="hidden" onclick="saveAttendance()">Save Record</button>
+              <button id="updateAttendanceBtn" class="hidden" onclick="updateAttendance()">Update Record</button>
+              <button id="deleteAttendanceBtn" class="hidden" onclick="deleteAttendance()">Delete Record</button>
+            </div>
+            <div id="monthPanel" class="dashboard-section" style="margin-top:0;">
+              <label>Select Month:
+                <input type="month" id="monthSelect">
+              </label>
+              <button onclick="viewMonthRecords()">View Records</button>
+              <div id="monthDays"></div>
+              <div id="monthRecords"></div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal for Class Record -->
+    <div id="classRecordModalBg" class="modal-bg hidden">
+      <div class="modal" id="classRecordModal">
+        <button class="close-btn" onclick="closeClassRecordModal()">&times;</button>
+        <h3>Create Class Record</h3>
+        <label>Class Name:
+          <input type="text" id="classNameInput" maxlength="32" placeholder="e.g. Grade Level - Section Name">
+        </label>
+        <label>Students:</label>
+        <ul id="studentListEdit" class="student-list-edit"></ul>
+        <button class="add-btn" onclick="addStudentInput()">Add Student</button>
+        <button class="save-btn" onclick="saveClassRecord()">Save Class Record</button>
+        <div id="recordKeyDisplay" class="record-key-display hidden"></div>
+      </div>
+    </div>
+    <script>
+      let attendanceRecords = {}; // { "RECORD_KEY": { "YYYY-MM": { "YYYY-MM-DD": { student: status, ... } } } }
+      let classRecords = {}; // { recordKey: { name: string, students: [string] } }
+      let currentUser = {};
+      let currentRole = "";
+      let currentEditDate = "";
+      let currentClassKey = "";
+      let currentStudents = [];
+
+      // --- Class Record Modal Logic ---
+      function showClassRecordModal() {
+        document.getElementById("classRecordModalBg").classList.remove("hidden");
+        document.getElementById("classNameInput").value = "";
+        document.getElementById("recordKeyDisplay").classList.add("hidden");
+        document.getElementById("studentListEdit").innerHTML = "";
+        addStudentInput();
+        addStudentInput();
+      }
+      function closeClassRecordModal() {
+        document.getElementById("classRecordModalBg").classList.add("hidden");
+      }
+      function addStudentInput(name = "") {
+        const ul = document.getElementById("studentListEdit");
+        const li = document.createElement("li");
+        li.innerHTML = `<input type="text" maxlength="24" placeholder="Student Name" value="${name.replace(/"/g,'&quot;')}">
+          <button onclick="this.parentElement.remove()">Delete</button>`;
+        ul.appendChild(li);
+      }
+      function saveClassRecord() {
+        const name = document.getElementById("classNameInput").value.trim();
+        const ul = document.getElementById("studentListEdit");
+        const studentInputs = ul.querySelectorAll("input[type='text']");
+        let students = [];
+        studentInputs.forEach(input => {
+          const val = input.value.trim();
+          if (val) students.push(val);
+        });
+        if (!name) {
+          alert("Please enter a class name.");
+          return;
+        }
+        if (students.length < 1) {
+          alert("Please add at least one student.");
+          return;
+        }
+        // Generate a record key
+        const recordKey = "CR-" + Math.random().toString(36).substr(2, 8).toUpperCase();
+        classRecords[recordKey] = { name, students };
+        attendanceRecords[recordKey] = {}; // Initialize attendance for this class
+        // If teacher is creating, switch to this class after save
+        if (currentRole === "teacher") {
+          switchClassRecord(recordKey);
+        }
+        updateClassRecordList();
+        document.getElementById("recordKeyDisplay").textContent = "Record Key: " + recordKey;
+        document.getElementById("recordKeyDisplay").classList.remove("hidden");
+        closeClassRecordModal();
+      }
+
+      // --- Teacher: Class Record List & Switch ---
+      function updateClassRecordList() {
+        if (currentRole !== "teacher") return;
+        const listDiv = document.getElementById("classRecordList");
+        const keys = Object.keys(classRecords);
+        if (keys.length === 0) {
+          listDiv.innerHTML = "<div style='color:#888;'>No class records yet.</div>";
+          document.getElementById("classRecordInfo").innerHTML = "";
+          document.getElementById("recordPanel").classList.add("hidden");
+          document.getElementById("monthPanel").classList.add("hidden");
+          return;
+        }
+        listDiv.innerHTML = keys.map(key => {
+          const active = key === currentClassKey ? "style='background:#3498db;color:#fff;'" : "";
+          return `<button ${active} onclick="switchClassRecord('${key}')" style="margin:0 6px 6px 0;padding:7px 18px;border-radius:8px;border:none;cursor:pointer;font-weight:500;">${classRecords[key].name}</button>`;
+        }).join("");
+      }
+      function switchClassRecord(key) {
+        currentClassKey = key;
+        currentStudents = classRecords[key].students;
+        document.getElementById("classRecordInfo").innerHTML =
+          `<div style="margin-top:10px;">
+            <strong>Class:</strong> ${classRecords[key].name}<br>
+            <strong>Record Key:</strong> <span style="color:#3498db">${key}</span><br>
+            <strong>Students:</strong> ${currentStudents.length}
+          </div>`;
+        document.getElementById("recordPanel").classList.remove("hidden");
+        document.getElementById("monthPanel").classList.remove("hidden");
+        loadAttendanceForm();
+        updateClassRecordList();
+      }
+
+      // --- Secretary Record Key Logic ---
+      function loadSecretaryClass() {
+        const key = document.getElementById("secretaryRecordKey").value.trim();
+        if (!key || !classRecords[key]) {
+          document.getElementById("secretaryKeyError").textContent = "Invalid or missing record key.";
+          document.getElementById("recordPanel").classList.add("hidden");
+          document.getElementById("monthPanel").classList.add("hidden");
+          return;
+        }
+        currentClassKey = key;
+        currentStudents = classRecords[key].students;
+        document.getElementById("secretaryKeyError").textContent = "";
+        document.getElementById("recordPanel").classList.remove("hidden");
+        document.getElementById("monthPanel").classList.remove("hidden");
+        document.getElementById("classRecordInfo").innerHTML =
+          `<div style="margin-top:10px;">
+            <strong>Class:</strong> ${classRecords[key].name}<br>
+            <strong>Record Key:</strong> <span style="color:#3498db">${key}</span><br>
+            <strong>Students:</strong> ${currentStudents.length}
+          </div>`;
+        document.getElementById("classRecordPanel").classList.remove("hidden");
+      }
+
+      // --- Parent Class Logic ---
+      function loadParentClass() {
+        const className = document.getElementById("parentClassNameInput").value.trim().toLowerCase();
+        let foundKey = "";
+        Object.keys(classRecords).forEach(key => {
+          if (classRecords[key].name.trim().toLowerCase() === className) foundKey = key;
+        });
+        if (!foundKey) {
+          document.getElementById("parentClassError").textContent = "Class not found.";
+          document.getElementById("recordPanel").classList.add("hidden");
+          document.getElementById("monthPanel").classList.add("hidden");
+          document.getElementById("classRecordInfo").innerHTML = "";
+          return;
+        }
+        currentClassKey = foundKey;
+        currentStudents = classRecords[foundKey].students;
+        document.getElementById("parentClassError").textContent = "";
+        document.getElementById("recordPanel").classList.add("hidden"); // Hide attendance form for parent
+        document.getElementById("monthPanel").classList.remove("hidden");
+        document.getElementById("classRecordInfo").innerHTML =
+          `<div style="margin-top:10px;">
+            <strong>Class:</strong> ${classRecords[foundKey].name}<br>
+            <strong>Record Key:</strong> <span style="color:#3498db">${foundKey}</span><br>
+            <strong>Students:</strong> ${currentStudents.length}
+          </div>`;
+        document.getElementById("classRecordPanel").classList.remove("hidden");
+      }
+
+      // --- Login/Logout/Role Panel ---
+      function login() {
+        const role = document.getElementById("role").value;
+        const user = document.getElementById("username").value;
+        const pass = document.getElementById("password").value;
+        if ((role === "teacher" && user === "Teacher" && pass === "Teacher123") ||
+            (role === "secretary" && user === "Secretary" && pass === "Secretary123") ||
+            (role === "parent" && user === "Parent" && pass === "Parent123")) {
+          currentUser = { role, user };
+          currentRole = role;
+          document.querySelector('.login-card').classList.remove('animated');
+          setTimeout(() => {
+            document.getElementById("login").classList.add("hidden");
+            document.getElementById("dashboard").classList.remove("hidden");
+            document.querySelector('.dashboard-card').classList.add('animated');
+            setTimeout(() => {
+              document.querySelectorAll('.dashboard-section').forEach(el => el.classList.add('animated'));
+            }, 200);
+          }, 400);
+          document.getElementById("userRole").textContent = role;
+          loadRolePanel(role);
+        } else {
+          alert("Invalid credentials.");
+        }
+      }
+
+      function logout() {
+        currentUser = {};
+        currentRole = "";
+        currentClassKey = "";
+        currentStudents = [];
+        document.querySelector('.dashboard-card').classList.remove('animated');
+        document.querySelectorAll('.dashboard-section').forEach(el => el.classList.remove('animated'));
+        setTimeout(() => {
+          document.getElementById("dashboard").classList.add("hidden");
+          document.getElementById("login").classList.remove("hidden");
+          document.querySelector('.login-card').classList.add('animated');
+        }, 400);
+        clearAttendanceUI();
+        document.getElementById("classRecordPanel").classList.add("hidden");
+        document.getElementById("secretaryKeyPanel").classList.add("hidden");
+        document.getElementById("classRecordInfo").innerHTML = "";
+        document.getElementById("classRecordList").innerHTML = "";
+      }
+
+      function loadRolePanel(role) {
+        document.getElementById("classRecordPanel").classList.add("hidden");
+        document.getElementById("secretaryKeyPanel").classList.add("hidden");
+        document.getElementById("parentClassPanel").classList.add("hidden");
+        document.getElementById("classRecordInfo").innerHTML = "";
+        document.getElementById("recordPanel").classList.add("hidden");
+        document.getElementById("monthPanel").classList.add("hidden");
+        document.getElementById("classRecordList").innerHTML = "";
+        if (role === "teacher") {
+          document.getElementById("classRecordPanel").classList.remove("hidden");
+          updateClassRecordList();
+        } else if (role === "secretary") {
+          document.getElementById("secretaryKeyPanel").classList.remove("hidden");
+        } else if (role === "parent") {
+          document.getElementById("parentClassPanel").classList.remove("hidden");
+          document.getElementById("recordPanel").classList.add("hidden"); // Hide attendance form for parent
+        } else {
+          document.getElementById("classRecordPanel").classList.add("hidden");
+          document.getElementById("secretaryKeyPanel").classList.add("hidden");
+          document.getElementById("parentClassPanel").classList.add("hidden");
+          document.getElementById("recordPanel").classList.add("hidden");
+          document.getElementById("monthPanel").classList.remove("hidden");
+        }
+        document.getElementById("attendanceForm").innerHTML = "";
+        document.getElementById("saveAttendanceBtn").classList.add("hidden");
+        document.getElementById("updateAttendanceBtn").classList.add("hidden");
+        document.getElementById("deleteAttendanceBtn").classList.add("hidden");
+        document.getElementById("monthRecords").innerHTML = "";
+        setTimeout(() => {
+          document.querySelectorAll('.dashboard-section').forEach(el => el.classList.add('animated'));
+        }, 200);
+      }
+
+      function clearAttendanceUI() {
+        document.getElementById("attendanceForm").innerHTML = "";
+        document.getElementById("saveAttendanceBtn").classList.add("hidden");
+        document.getElementById("updateAttendanceBtn").classList.add("hidden");
+        document.getElementById("deleteAttendanceBtn").classList.add("hidden");
+        document.getElementById("monthRecords").innerHTML = "";
+      }
+
+      // --- Attendance Logic ---
+      function loadAttendanceForm() {
+        if (!currentClassKey || !currentStudents.length) {
+          document.getElementById("attendanceForm").innerHTML = "<div style='color:#e74c3c;'>No class record loaded.</div>";
+          document.getElementById("saveAttendanceBtn").classList.add("hidden");
+          document.getElementById("updateAttendanceBtn").classList.add("hidden");
+          document.getElementById("deleteAttendanceBtn").classList.add("hidden");
+          return;
+        }
+        const date = document.getElementById("attendanceDate").value;
+        if (!date) return;
+        currentEditDate = date;
+        const month = date.slice(0, 7);
+        if (!attendanceRecords[currentClassKey][month]) attendanceRecords[currentClassKey][month] = {};
+        const record = attendanceRecords[currentClassKey][month][date];
+        let html = `<div class="record-date-header">Attendance for ${date}</div>`;
+        html += `<table class="attendance-form-table"><tr><th>Student</th><th>Present</th><th>Absent</th>`;
+        if (currentRole === "teacher") html += `<th>Excused</th>`;
+        html += `</tr>`;
+        currentStudents.forEach(name => {
+          let status = record ? record[name] : "";
+          html += `<tr${(currentRole === "secretary" && record) ? ' class="disabled-row"' : ''}>`;
+          html += `<td>${name}</td>`;
+          html += `<td><input type="radio" name="status_${name}" value="present"${status === "present" ? " checked" : ""}${(currentRole === "secretary" && record) ? " disabled" : ""}></td>`;
+          html += `<td><input type="radio" name="status_${name}" value="absent"${status === "absent" ? " checked" : ""}${(currentRole === "secretary" && record) ? " disabled" : ""}></td>`;
+          if (currentRole === "teacher") {
+            html += `<td><input type="radio" name="status_${name}" value="excused"${status === "excused" ? " checked" : ""}></td>`;
+          }
+          html += `</tr>`;
+        });
+        html += `</table>`;
+        document.getElementById("attendanceForm").innerHTML = html;
+        setTimeout(() => {
+          const table = document.querySelector('#attendanceForm .attendance-form-table');
+          if (table) table.classList.add('animated');
+        }, 50);
+        if (currentRole === "secretary") {
+          document.getElementById("updateAttendanceBtn").classList.add("hidden");
+          document.getElementById("deleteAttendanceBtn").classList.add("hidden");
+          if (record) {
+            document.getElementById("saveAttendanceBtn").classList.add("hidden");
+          } else {
+            document.getElementById("saveAttendanceBtn").classList.remove("hidden");
+          }
+        } else if (currentRole === "teacher") {
+          if (record) {
+            document.getElementById("updateAttendanceBtn").classList.remove("hidden");
+            document.getElementById("deleteAttendanceBtn").classList.remove("hidden");
+            document.getElementById("saveAttendanceBtn").classList.add("hidden");
+          } else {
+            document.getElementById("saveAttendanceBtn").classList.remove("hidden");
+            document.getElementById("updateAttendanceBtn").classList.add("hidden");
+            document.getElementById("deleteAttendanceBtn").classList.add("hidden");
+          }
+        }
+      }
+
+      function saveAttendance() {
+        if (!currentClassKey || !currentStudents.length) return;
+        const date = currentEditDate;
+        const month = date.slice(0, 7);
+        if (!attendanceRecords[currentClassKey][month]) attendanceRecords[currentClassKey][month] = {};
+        if (attendanceRecords[currentClassKey][month][date]) {
+          alert("Record already exists for this date.");
+          return;
+        }
+        const record = {};
+        let allMarked = true;
+        currentStudents.forEach(name => {
+          const radios = document.getElementsByName("status_" + name);
+          let marked = false;
+          for (let radio of radios) {
+            if (radio.checked) {
+              record[name] = radio.value;
+              marked = true;
+              break;
+            }
+          }
+          if (!marked) allMarked = false;
+        });
+        if (!allMarked) {
+          alert("Please mark attendance for all students.");
+          return;
+        }
+        attendanceRecords[currentClassKey][month][date] = record;
+        alert("Attendance saved for " + date + "!");
+        loadAttendanceForm();
+      }
+
+      function updateAttendance() {
+        if (currentRole !== "teacher" || !currentClassKey || !currentStudents.length) return;
+        const date = currentEditDate;
+        const month = date.slice(0, 7);
+        if (!attendanceRecords[currentClassKey][month] || !attendanceRecords[currentClassKey][month][date]) {
+          alert("No record exists for this date.");
+          return;
+        }
+        const record = {};
+        let allMarked = true;
+        currentStudents.forEach(name => {
+          const radios = document.getElementsByName("status_" + name);
+          let marked = false;
+          for (let radio of radios) {
+            if (radio.checked) {
+              record[name] = radio.value;
+              marked = true;
+              break;
+            }
+          }
+          if (!marked) allMarked = false;
+        });
+        if (!allMarked) {
+          alert("Please mark attendance for all students.");
+          return;
+        }
+        attendanceRecords[currentClassKey][month][date] = record;
+        alert("Attendance updated for " + date + "!");
+        loadAttendanceForm();
+      }
+
+      function deleteAttendance() {
+        if (currentRole !== "teacher" || !currentClassKey || !currentStudents.length) return;
+        const date = currentEditDate;
+        const month = date.slice(0, 7);
+        if (attendanceRecords[currentClassKey][month] && attendanceRecords[currentClassKey][month][date]) {
+          if (confirm("Are you sure you want to delete the record for " + date + "?")) {
+            delete attendanceRecords[currentClassKey][month][date];
+            alert("Record deleted.");
+            document.getElementById("attendanceForm").innerHTML = "";
+            document.getElementById("updateAttendanceBtn").classList.add("hidden");
+            document.getElementById("deleteAttendanceBtn").classList.add("hidden");
+          }
+        }
+      }
+
+      function viewMonthRecords() {
+        if (!currentClassKey || !currentStudents.length) {
+          document.getElementById("monthDays").innerHTML = "<p>No class record loaded.</p>";
+          document.getElementById("monthRecords").innerHTML = "";
+          return;
+        }
+        const month = document.getElementById("monthSelect").value;
+        const role = currentRole;
+        if (!month) return;
+        const daysDiv = document.getElementById("monthDays");
+        daysDiv.innerHTML = "";
+        document.getElementById("monthRecords").innerHTML = "";
+        if (!attendanceRecords[currentClassKey][month] || Object.keys(attendanceRecords[currentClassKey][month]).length === 0) {
+          daysDiv.innerHTML = "<p>No records for this month.</p>";
+          return;
+        }
+        const dates = Object.keys(attendanceRecords[currentClassKey][month]).sort();
+        daysDiv.innerHTML = `<div style="margin:16px 0 18px 0;display:flex;flex-wrap:wrap;gap:10px;">` +
+          dates.map(date =>
+            `<button class="date-capsule" onclick="showDayRecord('${month}','${date}')">${date}</button>`
+          ).join("") +
+          `</div>`;
+      }
+
+      function showDayRecord(month, date) {
+        if (!currentClassKey || !currentStudents.length) return;
+        const role = currentRole;
+        const record = attendanceRecords[currentClassKey][month][date];
+        let html = `<h3>Attendance for ${date}</h3>`;
+        html += `<table class="attendance-form-table animated"><tr><th>Student</th><th>Status</th></tr>`;
+        currentStudents.forEach(name => {
+          const status = record[name] || "";
+          let statusLabel = "";
+          if (status === "present") statusLabel = `<span class="present-label">Present</span>`;
+          else if (status === "absent") statusLabel = `<span class="absent-label">Absent</span>`;
+          else if (status === "excused") statusLabel = `<span class="excused-label">Excused</span>`;
+          else statusLabel = "-";
+          html += `<tr><td>${name}</td><td>${statusLabel}</td></tr>`;
+        });
+        html += `</table>`;
+        // Only allow view/edit for teacher/secretary, not parent
+        if (role === "teacher" || role === "secretary") {
+          html += `<div style="margin-top:12px;"><button onclick="viewRecord('${date}')">View/Edit This Record</button></div>`;
+        }
+        document.getElementById("monthRecords").innerHTML = html;
+      }
+
+      function viewRecord(date) {
+        document.getElementById("attendanceDate").value = date;
+        loadAttendanceForm();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // On page load, set default month to current
+      window.addEventListener('DOMContentLoaded', () => {
+        // Animate login card on load
+        setTimeout(() => {
+          document.querySelector('.login-card').classList.add('animated');
+        }, 100);
+        const now = new Date();
+        document.getElementById("monthSelect").value = now.toISOString().slice(0,7);
+      });
+    </script>
+
+    <!-- === MERGE: non-destructive enhancements script === -->
+    <script>
+      (function(){
+        // sample inline SVG as immediate fallback
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="100%" height="100%" fill="#2980b9"/><text x="50%" y="55%" font-size="56" font-family="Arial,Helvetica,sans-serif" fill="#fff" text-anchor="middle" alignment-baseline="central">AT</text></svg>';
+        const sampleDataUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+
+        // candidate filenames to autodiscover — drop your file in project root or assets/ with any of these names
+        const candidates = [
+          './site-logo.png','./site-logo.jpg','./site-logo.webp',
+          './logo.png','./logo.jpg',
+          './assets/site-logo.png','./assets/site-logo.jpg','./assets/logo.png','./assets/logo.jpg'
+        ];
+
+        // 1) inject an <img> into .nav-logo (non-destructive) if not present
+        function injectLogoImg(){
+          const navLogo = document.querySelector('.nav-logo');
+          if(!navLogo) return null;
+          if (navLogo.querySelector('#siteLogoImg')) return navLogo.querySelector('#siteLogoImg');
+          const img = document.createElement('img');
+          img.id = 'siteLogoImg';
+          img.className = 'logo-img';
+          img.alt = 'Site logo';
+          // insert at start, keep existing text/icon
+          navLogo.insertBefore(img, navLogo.firstChild);
+          return img;
+        }
+
+        // apply logo to UI (url or dataURL)
+        function applyLogoToUI(url){
+          const img = document.getElementById('siteLogoImg');
+          if(!img) return;
+          img.src = url;
+          img.style.display = 'inline-block';
+          // hide textual icon fallback when logo present
+          document.querySelectorAll('.nav-logo .logo-icon').forEach(el => el.style.display = 'none');
+        }
+
+        // try candidate external files sequentially
+        function tryExternalLogo(index = 0){
+          if (index >= candidates.length) return;
+          const url = candidates[index];
+          const tester = new Image();
+          tester.onload = () => applyLogoToUI(url);
+          tester.onerror = () => tryExternalLogo(index + 1);
+          tester.src = url;
+        }
+
+        // 2) page enter/exit and internal link interception (non-blocking)
+        function isInternalLink(a){
+          try{
+            if (!a || !a.href) return false;
+            if (a.target && a.target !== '') return false;
+            const url = new URL(a.href, location.href);
+            return url.origin === location.origin;
+          }catch(e){ return false; }
+        }
+        function interceptInternalLinks(){
+          document.querySelectorAll('a[href]').forEach(a=>{
+            if(!isInternalLink(a)) return;
+            a.addEventListener('click', function(e){
+              const href = a.href;
+              if (href === location.href || href.indexOf('#') !== -1) return;
+              e.preventDefault();
+              document.body.classList.add('page-exit');
+              setTimeout(()=> location.href = href, 320);
+            });
+          });
+        }
+
+        // 3) ripple effect for existing login button(s) (non-destructive)
+        function addRipple(button){
+          if(!button) return;
+          button.style.position = button.style.position || 'relative';
+          button.addEventListener('pointerdown', function(e){
+            const rect = button.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            const size = Math.max(rect.width, rect.height) * 1.4;
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+            button.appendChild(ripple);
+            requestAnimationFrame(()=> {
+              ripple.style.transform = 'scale(1)';
+              ripple.style.opacity = '0';
+            });
+            setTimeout(()=> ripple.remove(), 600);
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+          // inject and show sample immediately
+          const img = injectLogoImg();
+          if(img){ img.src = sampleDataUrl; img.style.display = 'inline-block'; }
+          // then try external files to override
+          tryExternalLogo();
+
+          // page enter animation
+          document.body.classList.add('page-enter');
+          setTimeout(()=> document.body.classList.remove('page-enter'), 520);
+
+          interceptInternalLinks();
+
+          // add ripple to your existing login button(s) (keeps onclick handlers)
+          const loginButtons = Array.from(document.querySelectorAll('button')).filter(b => b.onclick || b.getAttribute('onclick') === 'login()' || b.textContent.trim().toLowerCase().includes('login'));
+          loginButtons.forEach(addRipple);
+
+          // small enhancement: press Enter in password triggers existing login() if present
+          const pw = document.getElementById('password'), un = document.getElementById('username');
+          try{ if(pw) pw.addEventListener('keydown', function(e){ if(e.key === 'Enter' && typeof login === 'function') login(); }); }catch(e){}
+          try{ if(un) un.addEventListener('keydown', function(e){ if(e.key === 'Enter' && typeof login === 'function') login(); }); }catch(e){}
+        });
+      })();
+    </script>
+    <script>
+    (function(){
+      function updateFieldState(el){
+        if(!el) return;
+        if(el.value && el.value.trim() !== "") el.classList.add('not-empty');
+        else el.classList.remove('not-empty');
+      }
+      document.addEventListener('DOMContentLoaded', function(){
+        // wire inputs/select for floating label
+        document.querySelectorAll('.field input, .field select').forEach(el=>{
+          updateFieldState(el);
+          el.addEventListener('input', ()=> updateFieldState(el));
+          el.addEventListener('blur', ()=> updateFieldState(el));
+        });
+
+        // ensure Enter triggers existing login()
+        const pw = document.getElementById('password'), un = document.getElementById('username');
+        try{ if(pw) pw.addEventListener('keydown', function(e){ if(e.key === 'Enter' && typeof login === 'function') login(); }); }catch(e){}
+        try{ if(un) un.addEventListener('keydown', function(e){ if(e.key === 'Enter' && typeof login === 'function') login(); }); }catch(e){}
+      });
+    })();
+    </script>
+
+  <!-- FINAL VISUAL OVERRIDES: make login card perfectly centered, symmetrical and not overlapping the hero -->
+  <style>
+    /* Strong final overrides placed after existing styles (visual only) */
+    .header-hero {
+      margin-bottom: 22px !important;
+      padding-bottom: 28px !important;
+      min-height: 320px !important;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 1;
+    }
+
+    .attendance-section {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: flex-start !important;
+      padding: 0 12px 34px 12px !important;
+      margin: 0 auto !important;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .login {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* Final login-card layout */
+    .login-card {
+      width: 420px;
+      max-width: 92%;
+      box-sizing: border-box;
+      margin: 12px auto 0 auto; /* sits below the hero cleanly */
+      padding: 28px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+      color: #203041;
+      box-shadow: 0 22px 60px rgba(8,16,30,0.12);
+      border: 1px solid rgba(16,24,40,0.04);
+      position: relative;
+      z-index: 3;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    /* Inner spacing / symmetry */
+    .login-card h2 { margin: 0 0 14px 0; text-align: left; font-weight: 700; color: #1f2b36; }
+    .login-card .field { margin: 10px 0; }
+    .field input, .field select {
+      padding: 12px 44px 12px 12px !important;
+      border-radius: 8px !important;
+      border: 1px solid #e6eef6 !important;
+      background: #fff !important;
+      box-shadow: none !important;
+    }
+    .actions { margin-top: 16px; display:block; }
+
+    /* Ensure no overflow from absolutely positioned children */
+    .login-card * { max-width: 100%; }
+
+    /* Small screens */
+    @media (max-width: 520px) {
+      .header-hero { min-height: 180px; padding-bottom: 18px; }
+      .login-card { width: 92%; padding: 18px; margin-top: 10px; border-radius: 10px; }
+      .login-card h2 { font-size: 1.05rem; }
+    }
+  </style>
+</body>
+</html>

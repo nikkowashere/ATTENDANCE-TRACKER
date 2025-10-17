@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>About Us - Attendance Tracker</title>
+  <style>
+    :root{
+      --bg-1: #2c3e50;
+      --bg-2: #2980b9;
+      --accent: #3498db;
+      --muted-dark: #2c3e50;
+      --glass: rgba(255,255,255,0.06);
+      --card-border: rgba(16,24,40,0.06);
+    }
+    html,body{height:100%;margin:0;font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;}
+    body{
+      background: linear-gradient(135deg,var(--bg-1) 0%, var(--bg-2) 100%);
+      color: #eef6ff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Top navbar */
+    .navbar{
+      max-width: 1100px;
+      margin: 18px auto;
+      padding: 10px 18px;
+      display:block;
+      position: relative; /* allow absolutely positioned links */
+      background: linear-gradient(90deg, rgba(44,62,80,0.92), rgba(52,152,219,0.85));
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(8,16,30,0.35);
+      border: 1px solid rgba(255,255,255,0.02);
+      top: 14px;
+      z-index: 30;
+    }
+    .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;color:#fff;font-size:1.15rem; float:left}
+    .logo-icon{background:linear-gradient(135deg,var(--accent), #217dbb);width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;box-shadow:0 6px 20px rgba(16,24,40,0.35)}
+    /* nav links pinned to top-right of the navbar for consistent top-right placement */
+    .nav-links{ position:absolute; right:18px; top:10px; display:flex; gap:14px; align-items:center; }
+    .nav-links a{ color:rgba(255,255,255,0.92); text-decoration:none; padding:8px 12px; border-radius:8px; transition:all .18s; font-weight:600; display:inline-block;}
+    .nav-links a.active, .nav-links a:hover{ background:rgba(255,255,255,0.04); color:#fff; transform:translateY(-2px) }
+
+    /* Hero / header image */
+    .header-hero{
+      max-width:1100px;
+      margin: 18px auto 0;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      min-height: 220px;
+      background: url('header-bg.jpg') center/cover no-repeat, linear-gradient(135deg,var(--bg-1),var(--bg-2));
+      box-shadow: 0 12px 40px rgba(8,16,30,0.36);
+      border: 1px solid rgba(255,255,255,0.02);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
+    .header-hero::after{
+      content:"";
+      position:absolute;inset:0;background:linear-gradient(180deg, rgba(18,29,46,0.36), rgba(18,29,46,0.46));
+    }
+    .header-content{ position: relative; z-index: 2; padding: 18px 24px; text-align: center; color: #fff; max-width: 960px; }
+    .header-title{ font-size: 1.9rem; margin: 0 0 6px; font-weight: 800; }
+    .header-sub{ margin: 0; color: rgba(234,240,250,0.9); font-size: 1.02rem; max-width: 840px; margin-left: auto; margin-right: auto; }
+
+    /* Main card (glass) */
+    .main-container{
+      max-width: 1100px;
+      margin: 24px auto 60px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 18px 50px rgba(8,16,30,0.36);
+      border: 1px solid rgba(255,255,255,0.03);
+      position: relative;
+      z-index: 3;
+      overflow: visible;
+      box-sizing: border-box;
+    }
+
+    /* Team grid */
+    .team-grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 28px;
+      align-items: start;
+      justify-items: center;
+      margin: 20px auto 0;
+      width: 100%;
+      max-width: 980px;
+      box-sizing: border-box;
+    }
+
+    /* White member cards */
+    .team-member{
+      background: #ffffff;
+      color: var(--muted-dark);
+      width: 100%;
+      max-width: 260px;
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--card-border);
+      transition: transform .18s ease, box-shadow .18s ease;
+      box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+      position: relative;
+      min-height: 280px;
+      box-sizing: border-box;
+    }
+    .team-member:hover{transform:translateY(-8px);box-shadow:0 20px 48px rgba(16,24,40,0.14)}
+    .member-photo{
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #fff;
+      box-shadow: 0 6px 18px rgba(16,24,40,0.08);
+      background: #f2f2f2;
+      cursor: pointer;
+      display: block;
+      flex-shrink: 0;
+    }
+    .member-name{ font-weight: 700; font-size: 1.06rem; margin-top: 10px; text-align: center; }
+    .member-role{ color: var(--accent); font-weight: 600; font-size: .98rem; text-align: center; }
+
+    /* small edit hint */
+    .edit-hint{position:absolute;right:12px;top:10px;font-size:12px;color:#6b7280;background:rgba(0,0,0,0.03);padding:6px 8px;border-radius:8px;display:flex;gap:6px;align-items:center}
+    .edit-hint button{background:transparent;border:none;color:inherit;cursor:pointer;font-weight:600}
+
+    /* Why / purpose box — white */
+    .why{
+      margin-top:8px;
+      background:#ffffff;
+      color:var(--muted-dark);
+      border-radius:12px;
+      padding:18px;
+      border:1px solid var(--card-border);
+      box-shadow:0 6px 18px rgba(16,24,40,0.06);
+      max-width:920px;margin-left:auto;margin-right:auto;
+    }
+    .why h3{margin:0 0 8px;font-size:1.15rem}
+    .why p{margin:0;color:#444;line-height:1.6}
+
+    /* responsive tweaks */
+    @media (max-width:900px){
+      .header-title{ font-size: 1.6rem; }
+      .header-sub{ font-size: 1rem; padding: 0 10px; }
+      .main-container{ padding: 18px; margin: 12px 12px 40px; }
+      .team-member{ max-width: 92%; min-height: auto; }
+      .member-photo{ width: 100px; height: 100px; }
+    }
+    @media (max-width:480px){
+      .nav-links{ display: none; }
+      .header-hero{ min-height: 150px; padding: 18px; }
+      .member-photo{ width: 96px; height: 96px; }
+    }
+
+    /* navbar: normalized across home/about/index (visual-only) */
+    .navbar { max-width:1100px; margin:18px auto; padding:10px 18px; display:flex; align-items:center; gap:18px;
+      background: linear-gradient(90deg, rgba(44,62,80,0.92), rgba(52,152,219,0.85)); border-radius:14px;
+      box-shadow: 0 10px 30px rgba(8,16,30,0.35); border:1px solid rgba(255,255,255,0.02); position:sticky; top:14px; z-index:30; }
+    .nav-logo { display:flex; align-items:center; gap:10px; font-weight:700; color:#fff; font-size:1.15rem; text-decoration:none; }
+    .logo-img{ width:36px; height:36px; border-radius:8px; object-fit:cover; display:inline-block; margin-right:8px; vertical-align:middle; }
+    .brand-text{ color:#fff; font-weight:700; margin-left:6px; }
+    .nav-links { margin-left:auto; display:flex; gap:14px; align-items:center; }
+    .nav-links .nav-item { color:rgba(255,255,255,0.92); text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:600; transition:all .18s; }
+    .nav-links .nav-item.active, .nav-links .nav-item:hover { background:rgba(255,255,255,0.04); transform:translateY(-2px); color:#fff; }
+    @media (max-width:480px){ .nav-links{ gap:8px } .brand-text{ display:none } }
+  </style>
+</head>
+<body>
+  <header class="navbar" role="banner">
+    <a href="home.html" class="nav-logo" aria-label="Home">
+      <img id="siteLogoImg" class="logo-img" alt="Site logo" style="display:none" />
+      <div class="logo-icon">AT</div>
+      <span class="brand-text">Attendance</span>
+    </a>
+    <nav class="nav-links" role="navigation">
+      <a href="home.html" class="nav-item">Home</a>
+      <a href="index.html" class="nav-item">Login</a>
+      <a href="about.html" class="nav-item active">About</a>
+    </nav>
+  </header>
+
+  <section class="header-hero" aria-hidden="false">
+    <div class="header-content">
+      <div class="header-title">Meet the Team</div>
+      <div class="header-sub">Focused on building a simple, reliable attendance experience — thoughtful design, privacy-first, and easy to use.</div>
+    </div>
+  </section>
+
+  <main class="main-container" role="main">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:240px;text-align:left">
+        <h2 style="margin:0 0 6px 0;color:#fff">Our Team</h2>
+        <p style="margin:0;color:rgba(234,240,250,0.9)">Small, dedicated group — delivering a polished attendance tool for schools and organizations.</p>
+      </div>
+      <div style="text-align:right;min-width:220px">
+        <span style="background:var(--glass);padding:8px 12px;border-radius:10px;color:#fff;font-weight:600;border:1px solid rgba(255,255,255,0.02)">Collaboration • Care • Speed</span>
+      </div>
+    </div>
+
+    <section class="team-grid" aria-label="Team members">
+      <!-- Example team-member block. Click photo to change it in-browser -->
+      <article class="team-member" data-id="john-cedrick">
+        <img class="member-photo" src="John Cedrick Salvador.jpg" alt="John Cedrick Salvador" data-default="John Cedrick Salvador.jpg">
+        <div class="member-name">John Cedrick Salvador</div>
+        <div class="member-role">Leader</div>
+      </article>
+
+      <article class="team-member" data-id="charls">
+        <img class="member-photo" src="Charls.jpg" alt="Charls Sacata" data-default="Charls.jpg">
+        <div class="member-name">Charls Sacata</div>
+        <div class="member-role">Web Developer</div>
+      </article>
+
+      <article class="team-member" data-id="john-narag">
+        <img class="member-photo" src="John Narag.jpg" alt="John Narag" data-default="John Narag.jpg">
+        <div class="member-name">John Narag</div>
+        <div class="member-role">Member</div>
+      </article>
+
+      <article class="team-member" data-id="angelica">
+        <img class="member-photo" src="Angelica Rodriguez.jpg" alt="Angelica Rodriguez" data-default="Angelica Rodriguez.jpg">
+        <div class="member-name">Angelica Rodriguez</div>
+        <div class="member-role">Member</div>
+      </article>
+
+      <article class="team-member" data-id="prince">
+        <img class="member-photo" src="Prince Ulang.jpg" alt="Prince Ulang" data-default="Prince Ulang.jpg">
+        <div class="member-name">Prince Ulang</div>
+        <div class="member-role">Member</div>
+      </article>
+
+      <article class="team-member" data-id="jared">
+        <img class="member-photo" src="Jared Penares.jpg" alt="Jared Peñares" data-default="Jared Penares.jpg">
+        <div class="member-name">Jared Peñares</div>
+        <div class="member-role">Member</div>
+      </article>
+
+      <article class="team-member" data-id="bruce">
+        <img class="member-photo" src="Bruce Tuando.jpg" alt="Bruce Tuando" data-default="Bruce Tuando.jpg">
+        <div class="member-name">Bruce Tuando</div>
+        <div class="member-role">Member</div>
+      </article>
+
+      <article class="team-member" data-id="maynard">
+        <img class="member-photo" src="Maynard Santos.jpg" alt="Maynard Santos" data-default="Maynard Santos.jpg">
+        <div class="member-name">Maynard Santos</div>
+        <div class="member-role">Member</div>
+      </article>
+
+      <article class="team-member" data-id="james">
+        <img class="member-photo" src="James Paras.jpg" alt="James Paras" data-default="James Paras.jpg">
+        <div class="member-name">James Paras</div>
+        <div class="member-role">Member</div>
+      </article>
+
+      <article class="team-member" data-id="dave">
+        <img class="member-photo" src="Dave Perdon.jpg" alt="Dave Perdon" data-default="Dave Perdon.jpg">
+        <div class="member-name">Dave Perdon</div>
+        <div class="member-role">Member</div>
+      </article>
+
+      <article class="team-member" data-id="khayle">
+        <img class="member-photo" src="Khayle Lozada.jpg" alt="Khayle Lozada" data-default="Khayle Lozada.jpg">
+        <div class="member-name">Khayle Lozada</div>
+        <div class="member-role">Member</div>
+      </article>
+    </section>
+
+    <section class="why" aria-labelledby="why-title">
+      <h3 id="why-title">Why we created this web</h3>
+      <p>
+        To make attendance tracking simpler, faster, and more reliable. Traditional paper or manual methods are time consuming and error-prone — our goal is to provide a modern, intuitive platform that reduces administrative workload and improves record accuracy.
+      </p>
+    </section>
+  </main>
+
+  <!-- Hidden file input used for in-browser photo swapping -->
+  <input id="photoInput" type="file" accept="image/*" style="display:none" />
+
+  <script>
+    // Allow clicking any member photo to swap it (client-side only)
+    (function(){
+      const input = document.getElementById('photoInput');
+      let currentImg = null;
+      document.querySelectorAll('.member-photo').forEach(img=>{
+        img.addEventListener('click', ()=> {
+          currentImg = img;
+          input.value = null;
+          input.click();
+        });
+      });
+      input.addEventListener('change', (e)=>{
+        const f = e.target.files && e.target.files[0];
+        if (!f || !currentImg) return;
+        const reader = new FileReader();
+        reader.onload = function(evt){
+          currentImg.src = evt.target.result;
+        };
+        reader.readAsDataURL(f);
+      });
+    })();
+  </script>
+</body>
+</html>
